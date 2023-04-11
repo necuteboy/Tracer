@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+import argparse
 from urllib.request import urlopen
 from prettytable import PrettyTable
 
@@ -82,14 +83,9 @@ class TraceAS:
             with open(save_file, 'w') as f:
                 f.write(table_str)
 
-    def check_args(self):
-        """ Check the command line arguments """
-        if len(sys.argv) < 2:
-            print('Неверный формат ввода')
-            sys.exit(1)
-
-
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('indir',type=str)
+    args = parser.parse_args()
     trace_as = TraceAS()
-    trace_as.check_args()
-    trace_as.run(sys.argv[1],save_file='table.txt')
+    trace_as.run(args.indir,save_file='table.txt')
