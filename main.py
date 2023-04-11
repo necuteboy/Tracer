@@ -88,4 +88,4 @@ if __name__ == "__main__":
     parser.add_argument('name',type=str,help='domain name or ip address ')
     args = parser.parse_args()
     trace_as = TraceAS()
-    trace_as.run(args.indir,save_file='table.txt')
+    trace_as.run(args.name,save_file='table.txt')
