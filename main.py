@@ -85,7 +85,7 @@ class TraceAS:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('indir',type=str)
+    parser.add_argument('name',type=str,help='domain name or ip address ')
     args = parser.parse_args()
     trace_as = TraceAS()
     trace_as.run(args.indir,save_file='table.txt')
