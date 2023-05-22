@@ -1,7 +1,7 @@
 import os
 import re
 import argparse
-from urllib.request import urlopen
+from ipwhois import IPWhois
 from prettytable import PrettyTable
 
 
@@ -17,20 +17,12 @@ class IPInfo:
 
     @staticmethod
     def trace(hostname: str):
+        print(2)
         """ Get the list of IP addresses in the trace route """
         cmd_line = f"tracert {hostname}"
         p = os.popen(cmd_line)
         stdout = p.read()
         return IPInfo.regex_ip.findall(stdout)
-
-    @staticmethod
-    def parse(site, regex):
-        """ Parse the website content and extract the desired information """
-        try:
-            result = regex.findall(site)
-            return result[0]
-        except:
-            return ''
 
     @staticmethod
     def is_grey_ip(ip: str):
@@ -39,14 +31,13 @@ class IPInfo:
 
     @staticmethod
     def info_ip(ip):
+        print(1)
         """ Get information about the IP address """
         if IPInfo.is_grey_ip(ip):
             return ip, '', '', ''
-        url = f"https://www.nic.ru/whois/?searchWord={ip}"
         try:
-            with urlopen(url) as f:
-                site = f.read().decode('utf-8')
-                return ip, IPInfo.parse(site, IPInfo.regex_as), IPInfo.parse(site, IPInfo.regex_country), IPInfo.parse(site, IPInfo.regex_provider)
+            ipwhois_data = IPWhois(ip).lookup_rdap()
+            return ip, ipwhois_data['asn'], ipwhois_data['asn_country_code'], ipwhois_data['network']['name']
         except:
             return ip, '', '', ''
 
@@ -64,23 +55,16 @@ class TraceAS:
 
     def make_table(self, ips, save_file=None):
         """ Create a table with the trace results """
-        td_data = []
-        row_index = 0
-        for ip in ips:
+        table = PrettyTable(["№", "IP", "AS Name", "Country", "Provider"])
+        for i, ip in enumerate(ips):
             info = IPInfo.info_ip(ip)
-            td_data.append(row_index)
-            td_data.extend(info)
-            row_index += 1
-        table = PrettyTable(self.headers)
-        columns = len(self.headers)
-        while td_data:
-            table.add_row(td_data[:columns])
-            td_data = td_data[columns:]
-        table_str = str(table)
-        print(table_str)
+            table.add_row([i, *info])
+
+        print(table)
         if save_file:
             with open(save_file, 'w') as f:
-                f.write(table_str)
+                f.write(str(table))
+        return table
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
