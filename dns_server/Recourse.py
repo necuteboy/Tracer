@@ -4,7 +4,7 @@ from DNSServer import save, load
 
 from dnslib import DNSRecord, QTYPE
 
-class Resourse():
+class Recourse():
     def __init__(self, name):
         self.name = name
         self.NSA = None
@@ -17,7 +17,7 @@ class Resourse():
     def __hash__(self):
         return hash(self.name)
 
-    def add_resourse(self, data: DNSRecord):
+    def addRecourse(self, data: DNSRecord):
         if data.q.qtype == QTYPE.A:
             self.A = list(map(lambda x: x.rdata, data.rr))
             self.NSA = list(map(lambda x: (x.rname, x.rdata), data.ar))
@@ -33,20 +33,27 @@ class Resourse():
             self.NSA = list(map(lambda x: (x.rname, x.rdata), data.ar))
         else:
             pass
-        Thread(target=Resourse.removeRecourse, args=(self, data.q.qtype,
+        Thread(target=Recourse.removeRecourse, args=(self, data.q.qtype,
                                                      20)).start()
 
     @staticmethod
     def removeRecourse(self, qtype: QTYPE, ttl):
         time.sleep(ttl)
-        qtypes = {
-            QTYPE.A: [self.A, self.NSA, self.NS],
-            QTYPE.AAAA: [self.AAAA, self.NSA, self.NS],
-            QTYPE.PTR: [self.PTR],
-            QTYPE.NS: [self.NS, self.NSA]
-        }
-        for item in qtypes[qtype]:
-            item = None
+        if qtype == QTYPE.A:
+            self.A = None
+            self.NSA = None
+            self.NS = None
+        elif qtype == QTYPE.AAAA:
+            self.AAAA = None
+            self.NSA = None
+            self.NS = None
+        elif qtype == QTYPE.PTR:
+            self.PTR = None
+        elif qtype == QTYPE.NS:
+            self.NS = None
+            self.NSA = None
+        else:
+            pass
         print(f'Убрал из кеша: {self.name}  {qtype}')
         save()
         print(f"Сохранил нынешний кеш")
