@@ -5,52 +5,47 @@ import socket
 from ssl import wrap_socket
 from base64 import b64encode
 
-reader = configparser.ConfigParser(allow_no_value = True)
-# считываем данные из конфига
+
+# Чтение конфигурационного файла
+config = configparser.ConfigParser(allow_no_value=True)
 with open('./conf/config.cfg', 'r', encoding='utf-8') as f:
-    reader.read_file(f)
+    config.read_file(f)
 
-msg = reader['MESSAGE']
-acc = reader['ACCOUNT']
-login = acc['Login']
-passw = acc['Password'].encode()
-receivers = ','.join(reader['RECEIVERS'])
-subject = msg['Subject']
-
-# считываем текст из файла
-with open(msg['Text'], 'r', encoding='cp1251') as f:
+# Получение параметров из конфигурационного файла
+msg_params = config['MESSAGE']
+acc_params = config['ACCOUNT']
+login = acc_params['Login']
+password = acc_params['Password'].encode()
+receivers = ','.join(config['RECEIVERS'])
+subject = msg_params['Subject']
+with open(msg_params['Text'], 'r', encoding='cp1251') as f:
     text = f.read()
 
-# обрабатываем точки в посылаемом тексте
+# Обработка текста сообщения
 if text[0] == '.':
     text = '.' + text
 text = text.replace("\n.", "\n..")
 
-# последовательность символов, разделяющих части сообщения
-boundary = msg['Boundary']
-
-# считываем прикрепленные картинки, документы и т.д.
+# Создание частей сообщения
+boundary = msg_params['Boundary']
 attachments = ''
-for attachment in msg['Attachments'].split('\n')[1:]:
+for attachment in msg_params['Attachments'].split('\n')[1:]:
     attachment = attachment.split(',')
     filename = attachment[0].strip()
-    # тип многоцелевого расшерения интернет-почты
     mime_type = attachment[1].strip()
     with open(filename, 'rb') as f:
         filename = filename.replace("./conf/", "")
         file = b64encode(f.read())
-        attachments += (f'Content-Disposition: attachment; filename="{filename}"\n'
-        'Content-Transfer-Encoding: base64\n'
-        f'Content-Type: {mime_type}; name="{filename}"\n\n'
+        attachments += (
+            f'Content-Disposition: attachment; filename="{filename}"\n'
+            'Content-Transfer-Encoding: base64\n'
+            f'Content-Type: {mime_type}; name="{filename}"\n\n'
         ) + file.decode() + f'\n--{boundary}'
 
-# если не каждый символ из темы сообщения итерируемый, 
-# то кодируем и декоридуем тему сообщения 
-if not all(ord(i) < 128 for i in subject):
+if not all(ord(i) <128 for i in subject):
     subject = f'=?utf-8?B?{b64encode(subject.encode()).decode()}?='
 
-# формируем итоговое сообщение, считав ранее необходимую информацию
-# из config.cfg и text.txt
+# Формирование сообщения
 message = (
     f"From: {login}\n"
     f"To: {receivers}\n"
@@ -65,31 +60,27 @@ message = (
     f"{attachments}--\n."
 )
 
-# функция отправки команды сокету и принятия ответа от него
-def request(sock, cmd, buffer_size=1024):
+# Отправка запросов к серверу
+def send_request(sock, cmd, buffer_size=1024):
     sock.send(cmd + b'\n')
     return sock.recv(buffer_size).decode()
 
-if __name__ == "__main__": 
+# Отправка письма
+if __name__ == "__main__":
     login = login.encode()
-    # устанавливаем соединение по указанному адресу и порту
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock = wrap_socket(sock)
-        server = reader['SERVER']
-        sock.settimeout(float(server['Timeout']))
-        sock.connect((server['Address'], int(server['Port'])))
-        # посылаем приветственное сообщение 
-        print(request(sock, b'EHLO test'))
-        # логинимся
-        print(request(sock, b'AUTH LOGIN'))
-        print(request(sock, b64encode(login)))
-        print(request(sock, b64encode(passw)))
-        # указываем от кого посылается сообщение
-        print(request(sock, b'MAIL FROM: ' + login))
-        # указываем получателей
-        for recipient in reader['RECEIVERS']:
-            print(request(sock, b'RCPT TO: ' + recipient.encode()))
-        # посылаем самое сообщение
-        print(request(sock, b'DATA'))
-        print(request(sock, message.encode()))
+        server_params = config['SERVER']
+        sock.settimeout(float(server_params['Timeout']))
+        sock.connect((server_params['Address'], int(server_params['Port'])))
+        print(send_request(sock, b'EHLO test'))
+        print(send_request(sock, b'AUTH LOGIN'))
+        print(send_request(sock, b64encode(login)))
+        print(send_request(sock, b64encode(password)))
+        print(send_request(sock, b'MAIL FROM: ' + login))
+        for recipient in config['RECEIVERS']:
+            print(send_request(sock, b'RCPT TO: ' + recipient.encode()))
+        # Посылаем самое сообщение
+        print(send_request(sock, b'DATA'))
+        print(send_request(sock, message.encode()))
         print('Message sent')
