@@ -15,3 +15,11 @@ upd: добавлен argparse вместо check_args
 
 то есть вводим id пользователя и указываем access token
 
+# SMTP_CLIENT
+для запуска ![image](https://github.com/necuteboy/protocols/assets/89706104/9d60ed2a-8142-44f7-bb66-4fd32c78e25a)
+![image](https://github.com/necuteboy/protocols/assets/89706104/8769e379-d28f-4955-9ad8-fccc4fdce880)
+
+Итог:
+![image](https://github.com/necuteboy/protocols/assets/89706104/928481ec-afa2-4929-a7ad-c68b5ad46ebf)
+
+
