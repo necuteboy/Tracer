@@ -8,7 +8,8 @@ upd: добавлен argparse вместо check_args
 # https://youtu.be/kVK8Ws_zqN0
 
 # VK_API friends
-для запуска ![image](https://github.com/necuteboy/protocols/assets/89706104/89a01403-2445-4816-98d5-f02648e8d3fb)
+для запуска ![image](https://github.com/necuteboy/protocols/assets/89706104/10b264c4-6e97-49a8-b1e4-0e74368f10a6)
+
 
 далее ![image](https://github.com/necuteboy/protocols/assets/89706104/b33e886a-21d5-4dda-92cd-9dd2060ae76f)
 ![image](https://github.com/necuteboy/protocols/assets/89706104/bec1c820-5c50-4eea-8a23-07cfa765add7)
