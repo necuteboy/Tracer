@@ -11,7 +11,8 @@ upd: добавлен argparse вместо check_args
 для запуска ![image](https://github.com/necuteboy/protocols/assets/89706104/10b264c4-6e97-49a8-b1e4-0e74368f10a6)
 
 
-далее ![image](https://github.com/necuteboy/protocols/assets/89706104/b33e886a-21d5-4dda-92cd-9dd2060ae76f)
+далее ![image](https://github.com/necuteboy/protocols/assets/89706104/4699197f-9eb5-4fc6-a2bb-01c6139ddeb1)
+
 ![image](https://github.com/necuteboy/protocols/assets/89706104/bec1c820-5c50-4eea-8a23-07cfa765add7)
 
 то есть вводим id пользователя и указываем access token
